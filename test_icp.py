@@ -1,4 +1,4 @@
-from utils.ICP import icp
+from utils.ICP import icp, icp2
 from utils.UtilsPointcloud import random_sampling
 from tf import Tf2D
 
@@ -9,33 +9,25 @@ data1 = np.load("data1.npy")
 data2 = np.load("data2.npy")
 
 def polar2xy(data):
-    return np.array([ [r*np.cos(np.radians(theta)), r*np.sin(np.radians(theta))] for theta, r in data ])
+    return np.array([ [-r*np.sin(np.radians(theta)), r*np.cos(np.radians(theta))] for theta, r in data ])
 
 def sample(data, npoints):
     n = data.shape[0]
     assert npoints <= n
-    return np.take(data, np.linspace(0, n, points, endpoint=False, dtype=int), axis=0)
+    return np.take(data, np.linspace(0, n, npoints, endpoint=False, dtype=int), axis=0)
 
 coord1 = polar2xy(data1)
 coord2 = polar2xy(data2)
 
-#points = min(coord1.shape[0], coord2.shape[0])
-points = 300
-print(f"Points: {points}")
+guess = Tf2D((-100, 0), np.radians(7))
 
-A = sample(coord1, points)
-B = sample(coord2, points)
+T, e, I, iter = icp2(coord1, coord2, max_iterations=100, num_closest=300)
 
-initial = Tf2D((-100, 0), np.radians(7))
-
-T, e, i = icp(initial(coord1), coord2, max_iterations=10000, tolerance=0.00001)
-
-print(np.mean(e), i)
+print(np.mean(e[I]), iter)
 
 tf = Tf2D.from_matrix(T)
-#tf = initial
+#tf = guess
 
-#coord1_new = np.array([ [x,y,1] for x, y in coord1 ]).T
 coord1_new = tf(coord1)
 
 print(tf)
