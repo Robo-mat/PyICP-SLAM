@@ -19,7 +19,7 @@ class Tf2D:
         
         assert matrix.shape == (3,3)
         
-        translation = (matrix @ np.array([0,0,1]).T)[:2]
+        translation = (matrix @ np.array([[0,0,1]]).T)[:2, 0]
         rotation = np.arctan2(matrix[1, 0], matrix[0,0])
         
         obj = cls(translation, rotation)
@@ -67,6 +67,10 @@ class Tf2D:
     def inverse(self):
         inv_matrix = np.linalg.inv(self.matrix)
         return Tf2D.from_matrix(inv_matrix)
+
+    @classmethod
+    def identity(cls):
+        return cls((0,0), 0)
 
     def apply(self, point: Iterable) -> np.ndarray:
         point = np.asarray([point])

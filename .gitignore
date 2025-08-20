@@ -1,5 +1,6 @@
 # numpy
 *.npy
+*.npz
 
 # strano file
 .lgd-nfy0
